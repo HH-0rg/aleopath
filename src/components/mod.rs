@@ -1,2 +1,3 @@
 pub mod function;
-pub mod ioregister;
+pub mod registers;
+pub mod types;

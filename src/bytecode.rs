@@ -26,6 +26,10 @@ impl ByteCode {
         unsafe { transmute::<[u8; 4], u32>([a[0], a[1], a[2], a[3]]) }
     }
 
+    pub fn read_u64(&mut self) -> u64 {
+        self.read_u32() as u64 + (self.read_u32() as u64) << 32
+    }
+
     pub fn read_i8(&mut self) -> i8 {
         self.read_u8() as i8
     }

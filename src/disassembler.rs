@@ -1,6 +1,6 @@
 use crate::bytecode::ByteCode;
 use crate::util;
-
+use crate::components::function::{ Function, FunctionType };
 #[derive(Default)]
 pub struct Disassembler {
     bytes: ByteCode,
@@ -10,6 +10,7 @@ pub struct Disassembler {
     num_imports: u8,
     imports: Vec<(String, String)>,
     num_components: u16,
+    functions: Vec<Function>,
 }
 
 impl Disassembler {
@@ -34,7 +35,13 @@ impl Disassembler {
     }
 
     fn read_components(&mut self) {
-        unimplemented!()
+        for _ in 0..self.num_components {
+            match self.bytes.read_u8() {
+                3 => self.functions.push(Function::read(&mut self.bytes, FunctionType::Closure)),
+                4 => self.functions.push(Function::read(&mut self.bytes, FunctionType::Function)),
+                _ => todo!()
+            }
+        }
     }
 
     pub fn get_version(&self) -> u16 {
