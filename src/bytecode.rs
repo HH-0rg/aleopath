@@ -1,6 +1,6 @@
 use std::mem::transmute;
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct ByteCode {
     bytes: Vec<u8>,
 }

@@ -1,7 +1,8 @@
 use crate::ByteCode;
 use crate::util;
-use super::registers::IoRegister;
+use super::registers::{ IoRegister, IOType };
 
+#[derive(Clone, Copy, Debug)]
 pub enum FunctionType {
     Function,
     Closure,
@@ -15,18 +16,24 @@ impl Default for FunctionType {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Function {
     name: String,
-    variant: FunctionType,
+    function_type: FunctionType,
     num_inputs: u16,
     inputs: Vec<IoRegister>,
 }
 
 impl Function {
-    pub fn read(bytes: &mut ByteCode, variant: FunctionType) -> Self {
+    pub fn read(bytes: &mut ByteCode, function_type: FunctionType) -> Self {
         let name = util::read_identifier(bytes);
         let num_inputs = bytes.read_u16();
-        Self::default()
+        let inputs: Vec<IoRegister> = (0..num_inputs).map(|_| IoRegister::read(bytes, function_type, IOType::Input)).collect();
+        Self {
+            name,
+            function_type,
+            num_inputs,
+            inputs,
+        }
     }
 }

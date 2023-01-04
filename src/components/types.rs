@@ -1,3 +1,7 @@
+use crate::ByteCode;
+use crate::util;
+
+#[derive(Debug)]
 pub enum Type {
     // The Address type
     Address,
@@ -31,14 +35,8 @@ pub enum Type {
     Scalar,
     // The string type
     String,
-}
-
-pub enum Visibility {
-    Constant,
-    Public,
-    Private,
-    Record,
-    ExternalRecord,
+    // User defined Type
+    Other(String)
 }
 
 impl From<usize> for Type {
@@ -65,7 +63,17 @@ impl From<usize> for Type {
     }
 }
 
-impl From<usize> for Visibility {
+#[derive(Debug)]
+pub enum Attribute {
+    Constant,
+    Public,
+    Private,
+    Record,
+    ExternalRecord,
+}
+
+
+impl From<usize> for Attribute {
     fn from(value: usize) -> Self {
         match value {
             0 => Self::Constant,
@@ -76,4 +84,25 @@ impl From<usize> for Visibility {
             _ => unreachable!()
         }
     }
+}
+
+pub fn read_attribute(bytes: &mut ByteCode) -> Attribute {
+    Attribute::from(bytes.read_u8() as usize)
+}
+
+pub fn read_plaintext_type(bytes: &mut ByteCode) -> Type {
+    match bytes.read_u8() {
+        0 => Type::from(bytes.read_u16() as usize),
+        1 => Type::Other(util::read_identifier(bytes)),
+        _ => unreachable!(),
+    }
+}
+
+pub fn read_function_register_type(bytes: &mut ByteCode) -> (Type, Attribute) {
+    let attribute = read_attribute(bytes);
+    let value_type = match attribute {
+        Attribute::Private | Attribute::Public | Attribute::Constant => read_plaintext_type(bytes),
+        _ => todo!(),
+    };
+    (value_type, attribute)
 }

@@ -1,7 +1,8 @@
 use crate::bytecode::ByteCode;
 use crate::util;
 use crate::components::function::{ Function, FunctionType };
-#[derive(Default)]
+
+#[derive(Default, Debug)]
 pub struct Disassembler {
     bytes: ByteCode,
     version: u16,
