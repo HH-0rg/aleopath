@@ -22,6 +22,7 @@ pub struct Function {
     function_type: FunctionType,
     num_inputs: u16,
     inputs: Vec<IoRegister>,
+    num_instructions: u32,
 }
 
 impl Function {
@@ -29,11 +30,13 @@ impl Function {
         let name = util::read_identifier(bytes);
         let num_inputs = bytes.read_u16();
         let inputs: Vec<IoRegister> = (0..num_inputs).map(|_| IoRegister::read(bytes, function_type, IOType::Input)).collect();
+        let num_instructions = bytes.read_u32();
         Self {
             name,
             function_type,
             num_inputs,
             inputs,
+            num_instructions,
         }
     }
 }
