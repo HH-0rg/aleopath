@@ -19,16 +19,11 @@ impl Disassembler {
         Self { bytes: ByteCode::new(buf), ..Default::default() }
     }
 
-    fn read_programid(&mut self) -> (String, String) {
-        let (name, network) = (util::read_identifier(&mut self.bytes), util::read_identifier(&mut self.bytes));
-        (name, network)
-    }
-
     fn read_header(&mut self) {
         self.version = self.bytes.read_u16();
-        (self.program_name, self.network) = self.read_programid();
+        (self.program_name, self.network) = util::read_programid(&mut self.bytes);
         self.num_imports = self.bytes.read_u8();
-        self.imports = (0..self.num_imports).map(|_| self.read_programid()).collect();
+        self.imports = (0..self.num_imports).map(|_| util::read_programid(&mut self.bytes)).collect();
     }
 
     fn read_num_components(&mut self) {

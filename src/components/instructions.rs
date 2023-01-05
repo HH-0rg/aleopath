@@ -1,9 +1,9 @@
 use crate::ByteCode;
-
+use crate::util;
 use super::registers::Register;
 use super::types::Literal;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Opcode {
     Abs,
     AbsWrapped,
@@ -63,8 +63,8 @@ pub enum Opcode {
     Xor,
 }
 
-impl From<usize> for Opcode {
-    fn from(value: usize) -> Self {
+impl From<u16> for Opcode {
+    fn from(value: u16) -> Self {
         match value {
             0 => Self::Abs,
             1 => Self::AbsWrapped,
@@ -191,24 +191,69 @@ const IS_CHECK: &[Opcode] = &[Opcode::IsEq, Opcode::IsNeq];
 pub enum Operand {
     Literal(Literal),
     Register(Register),
-    ProgramId(String),
-    Caller(String),
+    ProgramId((String, String, String)),
+    Caller,
+}
+
+impl Operand {
+    fn read(bytes: &mut ByteCode) -> Self {
+        match bytes.read_u8() {
+            0 => Self::Literal(Literal::read(bytes)),
+            1 => Self::Register(Register::read(bytes)),
+            2 => Self::ProgramId(util::read_locator(bytes)),
+            3 => Self::Caller,
+            _ => unreachable!(),    
+        }
+    }
+}
+
+#[derive(Debug)]
+pub enum Output {
+    Single(Register),
+    Multiple(Vec<Register>)
 }
 
 #[derive(Debug)]
 pub struct Instruction {
     opcode: Opcode,
-    operands: Option<Vec<Operand>>
+    operands: Option<Vec<Operand>>,
+    output: Output,
 }
 
 impl Instruction {
+    fn read_cast_instruction(bytes: &mut ByteCode, opcode: Opcode) -> Self {
+        todo!()
+    }
+
+    fn read_call_instruction(bytes: &mut ByteCode, opcode: Opcode) -> Self {
+        todo!()
+    }
+
+    fn read_ternary_instruction(bytes: &mut ByteCode, opcode: Opcode) -> Self {
+        todo!()
+    }
+
+    fn read_unary_instruction(bytes: &mut ByteCode, opcode: Opcode) -> Self {
+        Self {
+            opcode,
+            operands: Some(vec![Operand::read(bytes)]),
+            output: Output::Single(Register::read(bytes)),
+        }
+    }
+
+    fn read_binary_instruction(bytes: &mut ByteCode, opcode: Opcode) -> Self {
+        todo!()
+    }
 
     pub fn read(bytes: &mut ByteCode) -> Self {
-        let opcode = Opcode::from(bytes.read_u16() as usize);
+        let opcode = Opcode::from(bytes.read_u16());
         match opcode {
-            Opcode::Call => todo!(),
-            _ => todo!()
+            Opcode::Cast => Self::read_cast_instruction(bytes, opcode),
+            Opcode::Call => Self::read_call_instruction(bytes, opcode),
+            Opcode::Ternary => Self::read_ternary_instruction(bytes, opcode),
+            o if UNARY.contains(&o) => Self::read_unary_instruction(bytes, opcode),
+            o if BINARY.contains(&o) => Self::read_binary_instruction(bytes, opcode),
+            _ => unreachable!(),
         }
-        todo!()
     }
 }

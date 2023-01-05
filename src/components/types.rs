@@ -41,8 +41,8 @@ pub enum Type {
     Other(String)
 }
 
-impl From<usize> for Type {
-    fn from(value: usize) -> Self {
+impl From<u16> for Type {
+    fn from(value: u16) -> Self {
         match value {
             0 => Self::Address,
             1 => Self::Boolean,
@@ -172,7 +172,7 @@ pub fn read_attribute(bytes: &mut ByteCode) -> Attribute {
 pub fn read_plaintext_type(bytes: &mut ByteCode) -> Type {
     match bytes.read_u8() {
         // Literal Type
-        0 => Type::from(bytes.read_u16() as usize),
+        0 => Type::from(bytes.read_u16()),
         // Identifier for user defined type
         1 => Type::Other(util::read_identifier(bytes)),
         _ => unreachable!(),

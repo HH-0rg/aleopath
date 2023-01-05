@@ -13,7 +13,19 @@ pub fn read_variable_length_int(bytes: &mut ByteCode) -> usize {
         f => f as usize,
     }
 }
+
+pub fn read_programid(bytes: &mut ByteCode) -> (String, String) {
+    let (name, network) = (read_identifier(bytes), read_identifier(bytes));
+    (name, network)
+}
+
 pub fn read_identifiers(bytes: &mut ByteCode) -> Vec<String> {
     let n = bytes.read_u16();
     (0..n).map(|_| read_identifier(bytes)).collect()
+}
+
+pub fn read_locator(bytes: &mut ByteCode) -> (String, String, String) {
+    let (name, network) = read_programid(bytes);
+    let resource = read_identifier(bytes);
+    (name, network, resource)
 }
