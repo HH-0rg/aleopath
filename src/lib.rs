@@ -11,8 +11,6 @@ mod tests {
     use std::fs;
     use  crate::Disassembler;
 
-    
-
     #[test]
     fn disassemble() {
         let file = "examples/hello_test/main.avm";

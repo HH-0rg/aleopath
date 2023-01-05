@@ -1,3 +1,9 @@
+use crate::ByteCode;
+
+use super::registers::Register;
+use super::types::Literal;
+
+#[derive(Debug)]
 pub enum Opcode {
     Abs,
     AbsWrapped,
@@ -178,3 +184,31 @@ const BINARY: &[Opcode] = &[
     Opcode::Mod,
 ];
 
+const ASSERT: &[Opcode] = &[Opcode::AssertEq, Opcode::AssertNeq];
+const IS_CHECK: &[Opcode] = &[Opcode::IsEq, Opcode::IsNeq];
+
+#[derive(Debug)]
+pub enum Operand {
+    Literal(Literal),
+    Register(Register),
+    ProgramId(String),
+    Caller(String),
+}
+
+#[derive(Debug)]
+pub struct Instruction {
+    opcode: Opcode,
+    operands: Option<Vec<Operand>>
+}
+
+impl Instruction {
+
+    pub fn read(bytes: &mut ByteCode) -> Self {
+        let opcode = Opcode::from(bytes.read_u16() as usize);
+        match opcode {
+            Opcode::Call => todo!(),
+            _ => todo!()
+        }
+        todo!()
+    }
+}
