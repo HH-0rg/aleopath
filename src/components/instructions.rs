@@ -1,3 +1,5 @@
+use core::num;
+
 use crate::ByteCode;
 use crate::util;
 use super::registers::Register;
@@ -188,10 +190,16 @@ const ASSERT: &[Opcode] = &[Opcode::AssertEq, Opcode::AssertNeq];
 const IS_CHECK: &[Opcode] = &[Opcode::IsEq, Opcode::IsNeq];
 
 #[derive(Debug)]
+pub enum Locator {
+    Internal(String),
+    External((String, String, String))
+}
+
+#[derive(Debug)]
 pub enum Operand {
     Literal(Literal),
     Register(Register),
-    ProgramId((String, String, String)),
+    ProgramId(Locator),
     Caller,
 }
 
@@ -200,7 +208,7 @@ impl Operand {
         match bytes.read_u8() {
             0 => Self::Literal(Literal::read(bytes)),
             1 => Self::Register(Register::read(bytes)),
-            2 => Self::ProgramId(util::read_locator(bytes)),
+            2 => Self::ProgramId(Locator::External(util::read_locator(bytes))),
             3 => Self::Caller,
             _ => unreachable!(),    
         }
@@ -210,7 +218,8 @@ impl Operand {
 #[derive(Debug)]
 pub enum Output {
     Single(Register),
-    Multiple(Vec<Register>)
+    Multiple(Vec<Register>),
+    None,
 }
 
 #[derive(Debug)]
@@ -221,36 +230,76 @@ pub struct Instruction {
 }
 
 impl Instruction {
-    fn read_cast_instruction(bytes: &mut ByteCode, opcode: Opcode) -> Self {
-        todo!()
+    fn read_operands(bytes: &mut ByteCode, n: u8) -> Option<Vec<Operand>> {
+        if n == 0 {
+            None
+        } else {
+            Some((0..n).map(|_| Operand::read(bytes)).collect())
+        }   
     }
 
-    fn read_call_instruction(bytes: &mut ByteCode, opcode: Opcode) -> Self {
-        todo!()
+    fn read_call_instruction(bytes: &mut ByteCode) -> Self {
+        let callee = match bytes.read_u8() {
+            1 => Locator::Internal(util::read_identifier(bytes)),
+            _ => Locator::External(util::read_locator(bytes)),
+        };
+
+        let num_inputs = bytes.read_u8();
+        let operands = Self::read_operands(bytes, num_inputs);
+        let num_outputs = bytes.read_u8();
+        let output = Output::Multiple((0..num_outputs).map(|_| Register::read(bytes)).collect());
+        
+        Self {
+            opcode: Opcode::Call,
+            operands,
+            output,
+        }
+    }
+
+    fn read_assert_instruction(bytes: &mut ByteCode, opcode: Opcode) -> Self {
+        Self {
+            opcode,
+            operands: Self::read_operands(bytes, 2),
+            output: Output::None,
+        }
     }
 
     fn read_ternary_instruction(bytes: &mut ByteCode, opcode: Opcode) -> Self {
-        todo!()
+        Self {
+            opcode,
+            operands: Self::read_operands(bytes, 3),
+            output: Output::Single(Register::read(bytes)),
+        }
     }
 
     fn read_unary_instruction(bytes: &mut ByteCode, opcode: Opcode) -> Self {
         Self {
             opcode,
-            operands: Some(vec![Operand::read(bytes)]),
+            operands: Self::read_operands(bytes, 1),
             output: Output::Single(Register::read(bytes)),
         }
     }
 
     fn read_binary_instruction(bytes: &mut ByteCode, opcode: Opcode) -> Self {
-        todo!()
+        Self {
+            opcode,
+            operands: Self::read_operands(bytes, 2),
+            output: Output::Single(Register::read(bytes)),
+        }
+    }
+
+    pub fn read_instructions(bytes: &mut ByteCode) -> (u32, Vec<Self>) {
+        let num = bytes.read_u32();
+        let instructions = (0..num).map(|_| Self::read(bytes)).collect();
+        (num, instructions)
     }
 
     pub fn read(bytes: &mut ByteCode) -> Self {
         let opcode = Opcode::from(bytes.read_u16());
         match opcode {
-            Opcode::Cast => Self::read_cast_instruction(bytes, opcode),
-            Opcode::Call => Self::read_call_instruction(bytes, opcode),
+            Opcode::Call => Self::read_call_instruction(bytes),
             Opcode::Ternary => Self::read_ternary_instruction(bytes, opcode),
+            o if ASSERT.contains(&o) => Self::read_assert_instruction(bytes, opcode),
             o if UNARY.contains(&o) => Self::read_unary_instruction(bytes, opcode),
             o if BINARY.contains(&o) => Self::read_binary_instruction(bytes, opcode),
             _ => unreachable!(),

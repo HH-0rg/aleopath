@@ -9,7 +9,7 @@ pub use bytecode::ByteCode;
 #[cfg(test)]
 mod tests {
     use std::fs;
-    use  crate::Disassembler;
+    use crate::Disassembler;
 
     #[test]
     fn disassemble() {
