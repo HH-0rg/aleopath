@@ -1,6 +1,8 @@
+use std::fmt::Write;
+
 use crate::ByteCode;
+use crate::output::Assembly;
 use crate::util;
-use super::instructions;
 use super::registers::{ IoRegister, IOType };
 use super::instructions::Instruction;
 
@@ -48,5 +50,24 @@ impl Function {
             num_outputs,
             outputs,
         }
+    }
+}
+
+impl Assembly for Function {
+    fn assembly(&self) -> String {
+        let mut o = String::new();
+        o.write_str("function ").unwrap();
+        o.write_fmt(format_args!("{}\n", self.name)).unwrap();
+        for i in self.inputs.clone() {
+            o.write_str("\t").unwrap();
+            o.write_fmt(format_args!("{}\n", i.assembly())).unwrap();
+        }
+        let instructions = self.instructions.iter().map(|i| format!("\t{}", i.assembly())).collect::<Vec<String>>().join("\n"); 
+        o.write_fmt(format_args!("{instructions}\n")).unwrap();
+        for i in self.outputs.clone() {
+            o.write_str("\t").unwrap();
+            o.write_fmt(format_args!("{}\n", i.assembly())).unwrap();
+        }
+        o
     }
 }

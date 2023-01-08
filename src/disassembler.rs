@@ -1,6 +1,9 @@
+use std::fmt::Write;
+
 use crate::bytecode::ByteCode;
 use crate::util;
 use crate::components::function::{ Function, FunctionType };
+use crate::output::Assembly;
 
 #[derive(Default, Debug)]
 pub struct Disassembler {
@@ -55,4 +58,14 @@ impl Disassembler {
         self.read_components();
     }
 
+}
+
+impl Assembly for Disassembler {
+    fn assembly(&self) -> String {
+        let mut o = String::new();
+        o.write_fmt(format_args!("program {}.{}\n", self.program_name, self.network)).unwrap();
+        let functions = self.functions.iter().map(|i| format!("\t{}", i.assembly())).collect::<Vec<String>>().join("\n");
+        o.write_fmt(format_args!("{}\n", functions)).unwrap();
+        o
+    }
 }

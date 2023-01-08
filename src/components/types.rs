@@ -2,8 +2,9 @@ use std::fmt::Debug;
 
 use crate::ByteCode;
 use crate::util;
+use crate::output::Assembly;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Type {
     // The Address type
     Address,
@@ -41,6 +42,30 @@ pub enum Type {
     Other(String)
 }
 
+impl Assembly for Type {
+    fn assembly(&self) -> String {
+        match self {
+            Self::Address =>  "address".to_owned(),
+            Self::Boolean =>  "boolean".to_owned(),
+            Self::Field =>  "field".to_owned(),
+            Self::Group => "group".to_owned(),
+            Self::I8 =>  "i8".to_owned(),
+            Self::I16 =>  "i16".to_owned(),
+            Self::I32 =>  "i32".to_owned(),
+            Self::I64 =>  "i64".to_owned(),
+            Self::I128 => "i128".to_owned(),
+            Self::U8 =>  "u8".to_owned(),
+            Self::U16 =>  "u16".to_owned(),
+            Self::U32 =>  "u32".to_owned(),
+            Self::U64 =>  "u64".to_owned(),
+            Self::U128 =>  "u128".to_owned(),
+            Self::Scalar =>  "scalar".to_owned(),
+            Self::String => "string".to_owned(),
+            Self::Other(s) => s.clone(),
+        }
+    }
+}
+
 impl From<u16> for Type {
     fn from(value: u16) -> Self {
         match value {
@@ -65,7 +90,7 @@ impl From<u16> for Type {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Attribute {
     Constant,
     Public,
@@ -83,6 +108,17 @@ impl From<usize> for Attribute {
             3 => Self::Record,
             4 => Self::ExternalRecord,
             _ => unreachable!()
+        }
+    }
+}
+
+impl Assembly for Attribute {
+    fn assembly(&self) -> String {
+        match self {
+            Self::Constant => "constant".to_owned(),
+            Self::Private => "private".to_owned(),
+            Self::Public => "public".to_owned(),
+            Self::Record | Self::ExternalRecord => "record".to_owned(),
         }
     }
 }
@@ -164,6 +200,26 @@ impl Literal {
     }
 }
 
+impl Assembly for Literal {
+    fn assembly(&self) -> String {
+        match self {
+            Self::Address(ad) =>  ad.iter().map(|x| format!("{:02x?}", x)).collect::<Vec<String>>().join(""),
+            Self::Boolean(b) =>  b.to_string(),
+            Self::Field(f) =>  { f.clone().reverse(); f.iter().map(|x| format!("{:02x?}", x)).collect::<Vec<String>>().join("") },
+            Self::I8(i) =>  i.to_string(),
+            Self::I16(i) =>  i.to_string(),
+            Self::I32(i) =>  i.to_string(),
+            Self::I64(i) =>  i.to_string(),
+            Self::I128(i) =>  i.to_string(),
+            Self::U8(u) =>  u.to_string(),
+            Self::U16(u) =>  u.to_string(),
+            Self::U32(u) =>  u.to_string(),
+            Self::U64(u) =>  u.to_string(),
+            Self::U128(u) =>  u.to_string(),
+            Self::Scalar(s) => { s.clone().reverse(); s.iter().map(|x| format!("{:02x?}", x)).collect::<Vec<String>>().join("") },
+        }
+    }
+}
 
 pub fn read_attribute(bytes: &mut ByteCode) -> Attribute {
     Attribute::from(bytes.read_u8() as usize)

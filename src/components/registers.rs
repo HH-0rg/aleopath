@@ -3,8 +3,9 @@ use crate::util;
 use super::function::FunctionType;
 use super::{Type, Attribute};
 use super::types;
+use crate::output::Assembly;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Register {
     locator: usize,
     identifiers: Vec<String>,
@@ -25,13 +26,23 @@ impl Register {
     }
 }
 
-#[derive(Debug)]
+impl Assembly for Register {
+    fn assembly(&self) -> String {
+        if self.identifiers.len() == 0 {
+            format!("r{}", self.locator)
+        } else {
+            format!("r{}.{}", self.locator, self.identifiers.join("."))
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub enum IOType {
     Input,
     Output
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IoRegister {
     register: Register,
     io_type: IOType,
@@ -56,5 +67,15 @@ impl IoRegister {
             },
             _ => todo!()
         }
+    }
+}
+
+impl Assembly for IoRegister {
+    fn assembly(&self) -> String {
+        let io = match self.io_type {
+            IOType::Input => "input".to_string(),
+            IOType::Output => "output".to_string(),
+        };
+        format!("{} {} as {}.{}", io, self.register.assembly(), self.value_type.assembly(), self.attribute_type.assembly())
     }
 }

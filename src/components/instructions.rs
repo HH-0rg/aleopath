@@ -1,9 +1,8 @@
-use core::num;
-
 use crate::ByteCode;
 use crate::util;
 use super::registers::Register;
 use super::types::Literal;
+use crate::output::Assembly;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Opcode {
@@ -63,6 +62,71 @@ pub enum Opcode {
     SubWrapped,
     Ternary,
     Xor,
+}
+
+
+
+impl Assembly for Opcode {
+    fn assembly(&self) -> String {
+        match self {
+            Self::Abs => "Abs".to_lowercase(),
+            Self::AbsWrapped => "AbsWrapped".to_lowercase(),
+            Self::Add => "Add".to_lowercase(),
+            Self::AddWrapped => "AddWrapped".to_lowercase(),
+            Self::And => "And".to_lowercase(),
+            Self::AssertEq => "AssertEq".to_lowercase(),
+            Self::AssertNeq => "AssertNeq".to_lowercase(),
+            Self::Call => "Call".to_lowercase(),
+            Self::Cast => "Cast".to_lowercase(),
+            Self::CommitBHP256 => "CommitBHP256".to_lowercase(),
+            Self::CommitBHP512 => "CommitBHP512".to_lowercase(),
+            Self::CommitBHP768 => "CommitBHP768".to_lowercase(),
+            Self::CommitBHP1024 => "CommitBHP1024".to_lowercase(),
+            Self::CommitPED64 => "CommitPED64".to_lowercase(),
+            Self::CommitPED128 => "CommitPED128".to_lowercase(),
+            Self::Div => "Div".to_lowercase(),
+            Self::DivWrapped => "DivWrapped".to_lowercase(),
+            Self::Double => "Double".to_lowercase(),
+            Self::GreaterThan => "GreaterThan".to_lowercase(),
+            Self::GreaterThanOrEqual => "GreaterThanOrEqual".to_lowercase(),
+            Self::HashBHP256 => "HashBHP256".to_lowercase(),
+            Self::HashBHP512 => "HashBHP512".to_lowercase(),
+            Self::HashBHP768 => "HashBHP768".to_lowercase(),
+            Self::HashBHP1024 => "HashBHP1024".to_lowercase(),
+            Self::HashPED64 => "HashPED64".to_lowercase(),
+            Self::HashPED128 => "HashPED128".to_lowercase(),
+            Self::HashPSD2 => "HashPSD2".to_lowercase(),
+            Self::HashPSD4 => "HashPSD4".to_lowercase(),
+            Self::HashPSD8 => "HashPSD8".to_lowercase(),
+            Self::Inv => "Inv".to_lowercase(),
+            Self::IsEq => "IsEq".to_lowercase(),
+            Self::IsNeq => "IsNeq".to_lowercase(),
+            Self::LessThan => "LessThan".to_lowercase(),
+            Self::LessThanOrEqual => "LessThanOrEqual".to_lowercase(),
+            Self::Mod => "Mod".to_lowercase(),
+            Self::Mul => "Mul".to_lowercase(),
+            Self::MulWrapped => "MulWrapped".to_lowercase(),
+            Self::Nand => "Nand".to_lowercase(),
+            Self::Neg => "Neg".to_lowercase(),
+            Self::Nor => "Nor".to_lowercase(),
+            Self::Not => "Not".to_lowercase(),
+            Self::Or => "Or".to_lowercase(),
+            Self::Pow => "Pow".to_lowercase(),
+            Self::PowWrapped => "PowWrapped".to_lowercase(),
+            Self::Rem => "Rem".to_lowercase(),
+            Self::RemWrapped => "RemWrapped".to_lowercase(),
+            Self::Shl => "Shl".to_lowercase(),
+            Self::ShlWrapped => "ShlWrapped".to_lowercase(),
+            Self::Shr => "Shr".to_lowercase(),
+            Self::ShrWrapped => "ShrWrapped".to_lowercase(),
+            Self::Square => "Square".to_lowercase(),
+            Self::SquareRoot => "SquareRoot".to_lowercase(),
+            Self::Sub => "Sub".to_lowercase(),
+            Self::SubWrapped => "SubWrapped".to_lowercase(),
+            Self::Ternary => "Ternary".to_lowercase(),
+            Self::Xor => "Xor".to_lowercase(),
+        }   
+    }
 }
 
 impl From<u16> for Opcode {
@@ -195,6 +259,15 @@ pub enum Locator {
     External((String, String, String))
 }
 
+impl Assembly for Locator {
+    fn assembly(&self) -> String {
+        match self {
+            Self::Internal(s) => s.clone(),
+            Self::External((a, b, c)) => format!("{}.{}.{}", a, b, c),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub enum Operand {
     Literal(Literal),
@@ -215,11 +288,45 @@ impl Operand {
     }
 }
 
+impl Assembly for Operand {
+    fn assembly(&self) -> String {
+        match self {
+            Self::Register(reg) => reg.assembly(),
+            Self::ProgramId(loc) => loc.assembly(),
+            Self::Literal(lit) => lit.assembly(),
+            Self::Caller => "caller".to_owned(),
+        }
+    }
+}
+
+impl Assembly for Option<Vec<Operand>> {
+    fn assembly(&self) -> String {
+       if let Some(v) = self {
+        v.iter()
+            .map(|o| o.assembly())
+            .collect::<Vec<String>>()
+            .join(" ")
+       } else {
+        "".to_owned()
+       }
+    }
+}
+
 #[derive(Debug)]
 pub enum Output {
     Single(Register),
     Multiple(Vec<Register>),
     None,
+}
+
+impl Assembly for Output {
+    fn assembly(&self) -> String {
+        match self {
+            Self::Single(reg) => reg.assembly(),
+            Self::Multiple(regs) => regs.iter().map(|r| r.assembly()).collect::<Vec<String>>().join(" "),
+            Self::None => "".to_owned(),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -245,13 +352,14 @@ impl Instruction {
         };
 
         let num_inputs = bytes.read_u8();
-        let operands = Self::read_operands(bytes, num_inputs);
+        let mut operands = vec![Operand::ProgramId(callee)];
+        Self::read_operands(bytes, num_inputs).as_mut().map(|s| operands.append(s));
         let num_outputs = bytes.read_u8();
         let output = Output::Multiple((0..num_outputs).map(|_| Register::read(bytes)).collect());
         
         Self {
             opcode: Opcode::Call,
-            operands,
+            operands: Some(operands),
             output,
         }
     }
@@ -304,5 +412,11 @@ impl Instruction {
             o if BINARY.contains(&o) => Self::read_binary_instruction(bytes, opcode),
             _ => unreachable!(),
         }
+    }
+}
+
+impl Assembly for Instruction {
+    fn assembly(&self) -> String {
+        format!("{} {} into {}", self.opcode.assembly(), self.operands.assembly(), self.output.assembly())
     }
 }

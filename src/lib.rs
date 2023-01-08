@@ -2,6 +2,7 @@ mod bytecode;
 mod disassembler;
 mod util;
 mod components;
+mod output;
 
 pub use disassembler::Disassembler;
 pub use bytecode::ByteCode;
