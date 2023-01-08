@@ -63,8 +63,8 @@ impl Disassembler {
 impl Assembly for Disassembler {
     fn assembly(&self) -> String {
         let mut o = String::new();
-        o.write_fmt(format_args!("program {}.{}\n", self.program_name, self.network)).unwrap();
-        let functions = self.functions.iter().map(|i| format!("\t{}", i.assembly())).collect::<Vec<String>>().join("\n");
+        o.write_fmt(format_args!("program {}.{}\n\n", self.program_name, self.network)).unwrap();
+        let functions = self.functions.iter().map(|f| format!("{}", f.assembly())).collect::<Vec<String>>().join("\n\n");
         o.write_fmt(format_args!("{}\n", functions)).unwrap();
         o
     }
