@@ -13,8 +13,18 @@ mod tests {
     use crate::{Disassembler, output::Assembly};
 
     #[test]
-    fn disassemble() {
-        let file = "examples/hello_test/main.avm";
+    fn function() {
+        let file = "examples/function/main.avm";
+        let file_contents = fs::read(file).expect("couldn't read file");
+        println!("length: {}", file_contents.len());
+        let mut a = Disassembler::from_bytes(file_contents);
+        a.disassemble();
+        println!("{}", a.assembly());
+    }
+
+    #[test]
+    fn mapping() {
+        let file = "examples/mapping/main.avm";
         let file_contents = fs::read(file).expect("couldn't read file");
         println!("length: {}", file_contents.len());
         let mut a = Disassembler::from_bytes(file_contents);
