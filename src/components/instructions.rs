@@ -327,10 +327,6 @@ impl Assembly for Operands {
     fn leo(&self) -> String {
         unimplemented!()
     }
-
-    fn leo(&self) -> String {
-        return String::new();
-    }
 }
 
 #[derive(Debug)]
