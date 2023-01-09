@@ -1,7 +1,6 @@
 use crate::output::Assembly;
 use crate::{ByteCode, util};
 use super::types::{Type, self};
-use alloc::fmt::format;
 use alloc::string::String;
 use alloc::vec::Vec;
 

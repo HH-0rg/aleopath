@@ -9,8 +9,8 @@ use alloc::vec::Vec;
 
 #[derive(Debug, Clone)]
 pub struct Register {
-    locator: usize,
-    identifiers: Vec<String>,
+    pub(super) locator: usize,
+    pub(super) identifiers: Vec<String>,
 }
 
 impl Register {

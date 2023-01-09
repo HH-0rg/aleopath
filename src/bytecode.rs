@@ -1,4 +1,3 @@
-use core::intrinsics::transmute;
 use alloc::{vec::Vec};
 
 #[derive(Default, Debug)]
@@ -10,6 +9,11 @@ pub struct ByteCode {
 impl ByteCode {
     pub fn new(bytes: Vec<u8>) -> Self {
         Self { bytes, idx: 0 }
+    }
+
+    // Peek one byte as unsigned int in little endian
+    pub fn peek(&self) -> u8 {
+        self.bytes[self.idx]
     }
 
     // Read one byte as unsigned int in little endian

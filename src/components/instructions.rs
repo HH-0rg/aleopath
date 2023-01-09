@@ -1,7 +1,8 @@
 use crate::ByteCode;
+use crate::components::types;
 use crate::util;
 use super::registers::Register;
-use super::types::Literal;
+use super::types::{ Type, Literal };
 use crate::output::Assembly;
 use alloc::string::{ String, ToString};
 use alloc::vec::Vec;
@@ -301,7 +302,9 @@ impl Assembly for Operand {
     }
 }
 
-impl Assembly for Option<Vec<Operand>> {
+type Operands = Option<Vec<Operand>>;
+
+impl Assembly for Operands {
     fn assembly(&self) -> String {
        if let Some(v) = self {
         v.iter()
@@ -318,6 +321,7 @@ impl Assembly for Option<Vec<Operand>> {
 pub enum Output {
     Single(Register),
     Multiple(Vec<Register>),
+    Cast((Register, Type)),
     None,
 }
 
@@ -326,6 +330,7 @@ impl Assembly for Output {
         match self {
             Self::Single(reg) => reg.assembly(),
             Self::Multiple(regs) => regs.iter().map(|r| r.assembly()).collect::<Vec<String>>().join(" "),
+            Self::Cast((r, t)) => format!("{} as {}", r.assembly(), t.assembly()),
             Self::None => "".to_string(),
         }
     }
@@ -334,7 +339,7 @@ impl Assembly for Output {
 #[derive(Debug)]
 pub struct Instruction {
     opcode: Opcode,
-    operands: Option<Vec<Operand>>,
+    operands: Operands,
     output: Output,
 }
 
@@ -345,6 +350,25 @@ impl Instruction {
         } else {
             Some((0..n).map(|_| Operand::read(bytes)).collect())
         }   
+    }
+
+    fn read_cast_instruction(bytes: &mut ByteCode) -> Self {
+        let num_inputs = bytes.read_u8();
+        assert!(num_inputs <= 8 && num_inputs != 0, "number  of cast arguments must be between 1 and 8");
+        let operands: Vec<Operand> = (0..num_inputs).map(|_| Operand::read(bytes)).collect();
+        assert_eq!(bytes.read_u8(), 0);
+        let output = Register{locator: bytes.read_u8() as usize, identifiers: vec![]};
+        let valtype = bytes.peek();
+        let value_type  = match valtype {
+            0 => { _ = bytes.read_u8();  types::read_plaintext_type(bytes)},
+            1 => types::read_plaintext_type(bytes),
+            _ => unreachable!(),
+        };
+        Self {
+            opcode: Opcode::Cast,
+            operands: Some(operands),
+            output: Output::Cast((output, value_type)),
+        }
     }
 
     fn read_call_instruction(bytes: &mut ByteCode) -> Self {
@@ -409,6 +433,7 @@ impl Instruction {
         match opcode {
             Opcode::Call => Self::read_call_instruction(bytes),
             Opcode::Ternary => Self::read_ternary_instruction(bytes, opcode),
+            Opcode::Cast => Self::read_cast_instruction(bytes),
             o if ASSERT.contains(&o) => Self::read_assert_instruction(bytes, opcode),
             o if UNARY.contains(&o) => Self::read_unary_instruction(bytes, opcode),
             o if BINARY.contains(&o) => Self::read_binary_instruction(bytes, opcode),
@@ -419,6 +444,11 @@ impl Instruction {
 
 impl Assembly for Instruction {
     fn assembly(&self) -> String {
-        format!("{} {} into {}", self.opcode.assembly(), self.operands.assembly(), self.output.assembly())
+        match self.opcode {
+            Opcode::Cast => {
+                format!("{} {} into {}", self.opcode.assembly(), self.operands.assembly(), self.output.assembly())
+            },
+            _ => format!("{} {} into {}", self.opcode.assembly(), self.operands.assembly(), self.output.assembly()),
+        }    
     }
 }
