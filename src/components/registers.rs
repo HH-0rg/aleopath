@@ -65,7 +65,9 @@ impl IoRegister {
                     attribute_type,
                 }
             },
-            _ => todo!()
+            FunctionType::Closure => todo!(),
+            FunctionType::Finalize => todo!(),
+            FunctionType::Uninitialized => unimplemented!(),
         }
     }
 }
