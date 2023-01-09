@@ -4,38 +4,39 @@ use alloc::{vec::Vec};
 #[derive(Default, Debug)]
 pub struct ByteCode {
     bytes: Vec<u8>,
+    idx: usize,
 }
 
 impl ByteCode {
     pub fn new(bytes: Vec<u8>) -> Self {
-        Self { bytes }
+        Self { bytes, idx: 0 }
     }
 
     // Read one byte as unsigned int in little endian
     pub fn read_u8(&mut self) -> u8 {
-        self.bytes.remove(0)
+        let x = self.bytes[self.idx];
+        self.idx += 1;
+        x
     }
 
     // Read two bytes as unsigned int in little endian
     pub fn read_u16(&mut self) -> u16 {
-        let a: Vec<u8> = (0..2).map(|_| self.bytes.remove(0)).collect();
-        unsafe { transmute::<[u8; 2], u16>([a[0], a[1]]) }
+        (self.read_u8() as u16) + ((self.read_u8() as u16) << 8)
     }
 
     // Read four bytes as unsigned int in little endian
     pub fn read_u32(&mut self) -> u32 {
-        let a: Vec<u8> = (0..4).map(|_| self.bytes.remove(0)).collect();;
-        unsafe { transmute::<[u8; 4], u32>([a[0], a[1], a[2], a[3]]) }
+        (self.read_u16() as u32) + ((self.read_u16() as u32) << 16)
     }
 
     // Read eight bytes as unsigned int in little endian
     pub fn read_u64(&mut self) -> u64 {
-        self.read_u32() as u64 + (self.read_u32() as u64) << 32
+        (self.read_u32() as u64) + ((self.read_u32() as u64) << 32)
     }
 
     // Read 16 bytes as unsigned int in little endian
     pub fn read_u128(&mut self) -> u128 {
-        self.read_u64() as u128 + (self.read_u64() as u128) << 64
+        (self.read_u64() as u128) + ((self.read_u64() as u128) << 64)
     }
 
     // Read one byte as signed int in little endian
@@ -65,6 +66,6 @@ impl ByteCode {
 
     // Read n bytes
     pub fn read_n(&mut self, n: usize) -> Vec<u8> {
-        (0..n).map(|_| self.bytes.remove(0)).collect()
+        (0..n).map(|_| self.read_u8()).collect()
     }
 }
