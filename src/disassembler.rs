@@ -1,7 +1,7 @@
 use core::fmt::Write;
 use crate::bytecode::ByteCode;
 use crate::util;
-use crate::components::{ Function, Mapping, Struct, Record, records };
+use crate::components::{ Function, Mapping, Struct, Record };
 use crate::components::function::FunctionType;
 use crate::output::Assembly;
 use alloc::{vec::Vec, string::String};

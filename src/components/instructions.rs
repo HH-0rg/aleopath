@@ -132,7 +132,7 @@ impl Assembly for Opcode {
     }
 
     fn leo(&self) -> String {
-        return String::new();
+        unimplemented!()
     }
 }
 
@@ -275,7 +275,7 @@ impl Assembly for Locator {
     }
 
     fn leo(&self) -> String {
-        return String::new();
+        self.assembly()
     }
 }
 
@@ -310,22 +310,22 @@ impl Assembly for Operand {
     }
 
     fn leo(&self) -> String {
-        return String::new();
+        self.assembly()
     }
 }
 
-type Operands = Option<Vec<Operand>>;
+type Operands = Vec<Operand>;
 
 impl Assembly for Operands {
     fn assembly(&self) -> String {
-       if let Some(v) = self {
-        v.iter()
+        self.iter()
             .map(|o| o.assembly())
             .collect::<Vec<String>>()
             .join(" ")
-       } else {
-        "".to_string()
-       }
+    }
+
+    fn leo(&self) -> String {
+        unimplemented!()
     }
 
     fn leo(&self) -> String {
@@ -352,7 +352,12 @@ impl Assembly for Output {
     }
 
     fn leo(&self) -> String {
-        return String::new();
+        match self {
+            Self::Single(reg) => reg.assembly(),
+            Self::Multiple(regs) => format!("({})", regs.iter().map(|r| r.assembly()).collect::<Vec<String>>().join(",")),
+            Self::Cast((r, t)) => format!("{} as {}", r.assembly(), t.assembly()),
+            Self::None => "".to_string(),
+        }
     }
 }
 
@@ -364,12 +369,8 @@ pub struct Instruction {
 }
 
 impl Instruction {
-    fn read_operands(bytes: &mut ByteCode, n: u8) -> Option<Vec<Operand>> {
-        if n == 0 {
-            None
-        } else {
-            Some((0..n).map(|_| Operand::read(bytes)).collect())
-        }   
+    fn read_operands(bytes: &mut ByteCode, n: u8) -> Operands {
+        (0..n).map(|_| Operand::read(bytes)).collect()
     }
 
     fn read_cast_instruction(bytes: &mut ByteCode) -> Self {
@@ -385,7 +386,7 @@ impl Instruction {
         };
         Self {
             opcode: Opcode::Cast,
-            operands: Some(operands),
+            operands: operands,
             output: Output::Cast((output, value_type)),
         }
     }
@@ -398,13 +399,13 @@ impl Instruction {
 
         let num_inputs = bytes.read_u8();
         let mut operands = vec![Operand::ProgramId(callee)];
-        Self::read_operands(bytes, num_inputs).as_mut().map(|s| operands.append(s));
+        operands.append(Self::read_operands(bytes, num_inputs).as_mut());
         let num_outputs = bytes.read_u8();
         let output = Output::Multiple((0..num_outputs).map(|_| Register::read(bytes)).collect());
         
         Self {
             opcode: Opcode::Call,
-            operands: Some(operands),
+            operands: operands,
             output,
         }
     }
@@ -472,6 +473,69 @@ impl Assembly for Instruction {
     }
 
     fn leo(&self) -> String {
-        return String::new();
+        match self.opcode {
+            Opcode::Abs => format!("{} = {}.abs()", self.output.assembly(), self.operands[0].assembly()),
+            Opcode::AbsWrapped => format!("{}.abs_wrapped()", self.operands[0].assembly()),
+            Opcode::Add => format!("{} = {} + {}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::AddWrapped => format!("{} = {} + {}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::And => format!("{} = {} & {}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::AssertEq => format!("assert_eq({}, {})", self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::AssertNeq => format!("assert_eq({}, {})", self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::Call => format!("({}) = {}({})", self.output.leo(), self.operands[0].assembly(), self.operands[1..].iter().map(|o| o.leo()).collect::<Vec<String>>().join(", ")),
+            Opcode::Cast => {
+                let (t, r) = match self.output {
+                    Output::Cast((t, r)) => (t, r),
+                    _ => unreachable!(),
+                };
+                format!("{} = {}{{ {} }}", r.assembly(), t.assembly(), self.operands.iter().map(|o| o.leo()).collect::<Vec<String>>().join(", "))
+            },
+            Opcode::CommitBHP256 => todo!(),
+            Opcode::CommitBHP512 => todo!(),
+            Opcode::CommitBHP768 => todo!(),
+            Opcode::CommitBHP1024 => todo!(),
+            Opcode::CommitPED64 => todo!(),
+            Opcode::CommitPED128 => todo!(),
+            Opcode::Div => format!("{} = {} / {}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::DivWrapped => format!("{} = {} / {}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::Double => format!("{} = {}.double()", self.output.assembly(), self.operands[0].assembly()),
+            Opcode::GreaterThan => format!("{} = {} > {}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::GreaterThanOrEqual => format!("{} = {} >= {}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::HashBHP256 => todo!(),
+            Opcode::HashBHP512 => todo!(),
+            Opcode::HashBHP768 => todo!(),
+            Opcode::HashBHP1024 => todo!(),
+            Opcode::HashPED64 => todo!(),
+            Opcode::HashPED128 => todo!(),
+            Opcode::HashPSD2 => todo!(),
+            Opcode::HashPSD4 => todo!(),
+            Opcode::HashPSD8 => todo!(),
+            Opcode::Inv => format!("{} = {}.inv()", self.output.assembly(), self.operands[0].assembly()),
+            Opcode::IsEq => format!("{} = {} == {}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::IsNeq => format!("{} = {} != {}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::LessThan => format!("{} = {} < {}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::LessThanOrEqual => format!("{} = {} <= {}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::Mod => format!("{} = {}%{}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::Mul => format!("{} = {}*{}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::MulWrapped => format!("{} = {}*{}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::Nand => format!("{} = {}.nand({})", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::Neg => format!("{} = -{}", self.output.assembly(), self.operands[0].assembly()),
+            Opcode::Nor => format!("{} = {}.nor({})", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::Not => format!("{} = ~{}", self.output.assembly(), self.operands[0].assembly()),
+            Opcode::Or => format!("{} = {} || {}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::Pow => format!("{} = {}**{}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::PowWrapped => format!("{} = {}**{}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::Rem => format!("{} = {}%{}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::RemWrapped => format!("{} = {}.rem_wrappe({})", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::Shl => format!("{} = {} << {}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::ShlWrapped => format!("{} = {}.shl_wrapped({})", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::Shr => format!("{} = {}>>{}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::ShrWrapped => format!("{} = {}.shr_wrapped({})", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::Square => format!("{} = {}.square()", self.output.assembly(), self.operands[0].assembly()),
+            Opcode::SquareRoot => format!("{} = {}.square_root()", self.output.assembly(), self.operands[0].assembly()),
+            Opcode::Sub => format!("{} = {}-{}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::SubWrapped => format!("{} = {}.sub_wrapped({})", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+            Opcode::Ternary => format!("{} = {} ? {} : {}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly(), self.operands[2].assembly()),
+            Opcode::Xor => format!("{} = {}^{}", self.output.leo(), self.operands[0].assembly(), self.operands[1].assembly()),
+        }
     }
 }
