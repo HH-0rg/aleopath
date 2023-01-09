@@ -5,6 +5,7 @@ mod disassembler;
 mod util;
 mod components;
 mod output;
+mod macros;
 #[macro_use]
 extern crate alloc;
 use alloc::{vec::Vec, string::String};
