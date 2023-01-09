@@ -87,9 +87,10 @@ impl Assembly for Function {
         }
         //remove last comma
         o.pop();
-        o.write_str(")\n").unwrap();
-        let instructions = self.instructions.iter().map(|i| format!("{}", i.leo())).collect::<Vec<String>>().join("\n"); 
-        o.write_fmt(format_args!("{instructions}\n")).unwrap();
+        o.pop();
+        o.write_str(") {\n").unwrap();
+        let instructions = self.instructions.iter().map(|i| format!("\t{}", i.leo())).collect::<Vec<String>>().join("\n"); 
+        o.write_fmt(format_args!("{instructions}\n}}\n")).unwrap();
         o
 
     }

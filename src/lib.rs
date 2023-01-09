@@ -1,4 +1,4 @@
-// #![no_std]
+#![no_std]
 
 #[macro_use]
 mod macros;
@@ -29,42 +29,52 @@ pub fn disassemble(bytes: &str) -> String {
         .collect();
     let mut a = Disassembler::from_bytes(v);
     a.disassemble();
-    // a.assembly()
+    a.assembly()
+}
+
+#[wasm_bindgen]
+pub fn decompile(bytes: &str) -> String {
+    let v: Vec<u8> = (0..bytes.len())
+        .step_by(2)
+        .map(|i| u8::from_str_radix(&bytes[i..i + 2], 16).unwrap())
+        .collect();
+    let mut a = Disassembler::from_bytes(v);
+    a.disassemble();
     a.leo()
 }
 
-#[cfg(test)]
-mod tests {
-    use std::fs;
-    use crate::{Disassembler, output::Assembly};
+// #[cfg(test)]
+// mod tests {
+//     use std::fs;
+//     use crate::{Disassembler, output::Assembly};
 
-    // #[test]
-    // fn function() {
-    //     let file = "examples/function/main.avm";
-    //     let file_contents = fs::read(file).expect("couldn't read file");
-    //     println!("length: {}", file_contents.len());
-    //     let mut a = Disassembler::from_bytes(file_contents);
-    //     a.disassemble();
-    //     println!("{}", a.assembly());
-    // }
+//     // #[test]
+//     // fn function() {
+//     //     let file = "examples/function/main.avm";
+//     //     let file_contents = fs::read(file).expect("couldn't read file");
+//     //     println!("length: {}", file_contents.len());
+//     //     let mut a = Disassembler::from_bytes(file_contents);
+//     //     a.disassemble();
+//     //     println!("{}", a.assembly());
+//     // }
 
-    // #[test]
-    // fn mapping() {
-    //     let file = "examples/mapping/main.avm";
-    //     let file_contents = fs::read(file).expect("couldn't read file");
-    //     println!("length: {}", file_contents.len());
-    //     let mut a = Disassembler::from_bytes(file_contents);
-    //     a.disassemble();
-    //     println!("{}", a.assembly());
-    // }
+//     // #[test]
+//     // fn mapping() {
+//     //     let file = "examples/mapping/main.avm";
+//     //     let file_contents = fs::read(file).expect("couldn't read file");
+//     //     println!("length: {}", file_contents.len());
+//     //     let mut a = Disassembler::from_bytes(file_contents);
+//     //     a.disassemble();
+//     //     println!("{}", a.assembly());
+//     // }
 
-    #[test]
-    fn all_components() {
-        let file = "examples/all_components/main.avm";
-        let file_contents = fs::read(file).expect("couldn't read file");
-        println!("length: {}", file_contents.len());
-        let mut a = Disassembler::from_bytes(file_contents);
-        a.disassemble();
-        println!("{}", a.leo());
-    }
-}
+//     #[test]
+//     fn all_components() {
+//         let file = "examples/all_components/main.avm";
+//         let file_contents = fs::read(file).expect("couldn't read file");
+//         println!("length: {}", file_contents.len());
+//         let mut a = Disassembler::from_bytes(file_contents);
+//         a.disassemble();
+//         println!("{}", a.leo());
+//     }
+// }

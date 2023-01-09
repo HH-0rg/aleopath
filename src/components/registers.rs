@@ -38,7 +38,7 @@ impl Assembly for Register {
     }
     
     fn leo(&self) -> String {
-        return String::new();
+        self.assembly()
     }
 }
 
