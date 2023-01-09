@@ -85,6 +85,7 @@ impl Assembly for Disassembler {
     
     fn leo(&self) -> String {
         let mut o = String::new();
+        o.write_fmt(format_args!("program {}.{} {{\n\n", self.program_name, self.network)).unwrap();
         let mappings = self.mappings.iter().map(|m| format!("{}", m.leo())).collect::<Vec<String>>().join("\n\n");
         let functions = self.functions.iter().map(|f| format!("{}", f.leo())).collect::<Vec<String>>().join("\n\n");
         let structs = self.structs.iter().map(|s| format!("{}", s.leo())).collect::<Vec<String>>().join("\n\n");
@@ -93,6 +94,7 @@ impl Assembly for Disassembler {
         o.write_fmt(format_args!("{}\n", records)).unwrap();
         o.write_fmt(format_args!("{}\n", structs)).unwrap();
         o.write_fmt(format_args!("{}\n", functions)).unwrap();
+        o.write_fmt(format_args!("}}\n")).unwrap();
         o
     }
 }
