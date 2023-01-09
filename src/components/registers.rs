@@ -36,6 +36,10 @@ impl Assembly for Register {
             format!("r{}.{}", self.locator, self.identifiers.join("."))
         }
     }
+    
+    fn leo(&self) -> String {
+        return String::new();
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -81,5 +85,12 @@ impl Assembly for IoRegister {
             IOType::Output => "output".to_string(),
         };
         format!("{} {} as {}.{}", io, self.register.assembly(), self.value_type.assembly(), self.attribute_type.assembly())
+    }
+
+    fn leo(&self) -> String {
+        match self.io_type {
+            IOType::Input => format!("{} {}: {}", self.attribute_type.leo(), self.register.leo(), self.value_type.leo()),
+            IOType::Output => "output".to_string(),
+        }
     }
 }

@@ -130,6 +130,10 @@ impl Assembly for Opcode {
             Self::Xor => "Xor".to_lowercase(),
         }   
     }
+
+    fn leo(&self) -> String {
+        return String::new();
+    }
 }
 
 impl From<u16> for Opcode {
@@ -269,6 +273,10 @@ impl Assembly for Locator {
             Self::External((a, b, c)) => format!("{}.{}.{}", a, b, c),
         }
     }
+
+    fn leo(&self) -> String {
+        return String::new();
+    }
 }
 
 #[derive(Debug)]
@@ -300,6 +308,10 @@ impl Assembly for Operand {
             Self::Caller => "caller".to_string(),
         }
     }
+
+    fn leo(&self) -> String {
+        return String::new();
+    }
 }
 
 type Operands = Option<Vec<Operand>>;
@@ -314,6 +326,10 @@ impl Assembly for Operands {
        } else {
         "".to_string()
        }
+    }
+
+    fn leo(&self) -> String {
+        return String::new();
     }
 }
 
@@ -333,6 +349,10 @@ impl Assembly for Output {
             Self::Cast((r, t)) => format!("{} as {}", r.assembly(), t.assembly()),
             Self::None => "".to_string(),
         }
+    }
+
+    fn leo(&self) -> String {
+        return String::new();
     }
 }
 
@@ -449,5 +469,9 @@ impl Assembly for Instruction {
             },
             _ => format!("{} {} into {}", self.opcode.assembly(), self.operands.assembly(), self.output.assembly()),
         }    
+    }
+
+    fn leo(&self) -> String {
+        return String::new();
     }
 }

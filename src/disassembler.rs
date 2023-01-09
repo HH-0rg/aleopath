@@ -82,4 +82,11 @@ impl Assembly for Disassembler {
         o.write_fmt(format_args!("{}\n", functions)).unwrap();
         o
     }
+    
+    fn leo(&self) -> String {
+        let mut o = String::new();
+        let functions = self.functions.iter().map(|f| format!("{}", f.leo())).collect::<Vec<String>>().join("\n\n");
+        o.write_fmt(format_args!("{}\n", functions)).unwrap();
+        o
+    }
 }

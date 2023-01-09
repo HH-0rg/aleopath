@@ -1,3 +1,4 @@
+// #![no_std]
 
 #[macro_use]
 mod macros;
@@ -28,7 +29,8 @@ pub fn disassemble(bytes: &str) -> String {
         .collect();
     let mut a = Disassembler::from_bytes(v);
     a.disassemble();
-    a.assembly()
+    // a.assembly()
+    a.leo()
 }
 
 #[cfg(test)]

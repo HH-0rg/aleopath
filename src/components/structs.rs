@@ -14,6 +14,10 @@ impl Assembly for Entry {
     fn assembly(&self) -> String {
         format!("{} as {}", self.name, self.value_type.assembly())
     }
+
+    fn leo(&self) -> String {
+        format!("{}: {},", self.name, self.value_type.assembly())
+     }
 }
 
 #[derive(Debug)]
@@ -44,4 +48,9 @@ impl Assembly for Struct {
         let entries = self.entries.iter().map(|i| format!("\t{};", i.assembly())).collect::<Vec<String>>().join("\n"); 
         format!("struct {}:\n{}\n", self.name, entries)
     }
+
+    fn leo(&self) -> String {
+        let entries = self.entries.iter().map(|i| format!("\t{}", i.leo())).collect::<Vec<String>>().join("\n"); 
+        format!("struct {} {{\n{}}}\n", self.name, entries)
+     }
 }

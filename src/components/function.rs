@@ -73,4 +73,24 @@ impl Assembly for Function {
         }
         o
     }
+
+    fn leo(&self) -> String {
+        // return the leo source code
+        // function signature followed by code
+        let mut o = String::new();
+        o.write_str("function ").unwrap();
+        o.write_fmt(format_args!("{}(", self.name)).unwrap();
+        for i in self.inputs.clone() {
+            o.write_fmt(format_args!("{}", i.leo())).unwrap();
+            //comma
+            o.write_str(", ").unwrap();
+        }
+        //remove last comma
+        o.pop();
+        o.write_str(")\n").unwrap();
+        let instructions = self.instructions.iter().map(|i| format!("{}", i.leo())).collect::<Vec<String>>().join("\n"); 
+        o.write_fmt(format_args!("{instructions}\n")).unwrap();
+        o
+
+    }
 }

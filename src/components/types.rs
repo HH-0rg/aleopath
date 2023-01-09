@@ -65,6 +65,10 @@ impl Assembly for Type {
             Self::Other(s) => s.clone(),
         }
     }
+
+    fn leo(&self) -> String {
+        return self.assembly();
+     }
 }
 
 impl From<u16> for Type {
@@ -122,6 +126,10 @@ impl Assembly for Attribute {
             Self::Record | Self::ExternalRecord => "record".to_string(),
         }
     }
+
+    fn leo(&self) -> String {
+        return self.assembly();
+     }
 }
 
 #[derive(Debug)]
@@ -220,6 +228,10 @@ impl Assembly for Literal {
             Self::Scalar(s) => { s.clone().reverse(); s.iter().map(|x| format!("{:02x?}", x)).collect::<Vec<String>>().join("") },
         }
     }
+
+    fn leo(&self) -> String {
+        return self.assembly();
+     }
 }
 
 pub fn read_attribute(bytes: &mut ByteCode) -> Attribute {

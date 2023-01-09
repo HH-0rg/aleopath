@@ -33,6 +33,10 @@ impl Assembly for KeyValue {
     fn assembly(&self) -> String {
         format!("{} as {}.{}", self.name, self.value_type.assembly(), self.attribute_type.assembly())
     }
+
+    fn leo(&self) -> String {
+        return String::new();
+    }
 }
 
 #[derive(Debug)]
@@ -55,5 +59,9 @@ impl Mapping {
 impl Assembly for Mapping {
     fn assembly(&self) -> String {
         format!("mapping {}\n\tkey {}\n\tvalue {}\n", self.name, self.key.assembly(), self.value.assembly())
+    }
+
+    fn leo(&self) -> String {
+        return String::new();
     }
 }
