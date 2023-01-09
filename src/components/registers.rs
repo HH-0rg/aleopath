@@ -4,6 +4,8 @@ use super::function::FunctionType;
 use super::{Type, Attribute};
 use super::types;
 use crate::output::Assembly;
+use alloc::string::{String, ToString};
+use alloc::vec::Vec;
 
 #[derive(Debug, Clone)]
 pub struct Register {

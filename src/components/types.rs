@@ -1,5 +1,6 @@
-use std::fmt::Debug;
-
+use core::fmt::Debug;
+use alloc::string::{String, ToString};
+use alloc::vec::Vec;
 use crate::ByteCode;
 use crate::util;
 use crate::output::Assembly;
@@ -45,22 +46,22 @@ pub enum Type {
 impl Assembly for Type {
     fn assembly(&self) -> String {
         match self {
-            Self::Address =>  "address".to_owned(),
-            Self::Boolean =>  "boolean".to_owned(),
-            Self::Field =>  "field".to_owned(),
-            Self::Group => "group".to_owned(),
-            Self::I8 =>  "i8".to_owned(),
-            Self::I16 =>  "i16".to_owned(),
-            Self::I32 =>  "i32".to_owned(),
-            Self::I64 =>  "i64".to_owned(),
-            Self::I128 => "i128".to_owned(),
-            Self::U8 =>  "u8".to_owned(),
-            Self::U16 =>  "u16".to_owned(),
-            Self::U32 =>  "u32".to_owned(),
-            Self::U64 =>  "u64".to_owned(),
-            Self::U128 =>  "u128".to_owned(),
-            Self::Scalar =>  "scalar".to_owned(),
-            Self::String => "string".to_owned(),
+            Self::Address =>  "address".to_string(),
+            Self::Boolean =>  "boolean".to_string(),
+            Self::Field =>  "field".to_string(),
+            Self::Group => "group".to_string(),
+            Self::I8 =>  "i8".to_string(),
+            Self::I16 =>  "i16".to_string(),
+            Self::I32 =>  "i32".to_string(),
+            Self::I64 =>  "i64".to_string(),
+            Self::I128 => "i128".to_string(),
+            Self::U8 =>  "u8".to_string(),
+            Self::U16 =>  "u16".to_string(),
+            Self::U32 =>  "u32".to_string(),
+            Self::U64 =>  "u64".to_string(),
+            Self::U128 =>  "u128".to_string(),
+            Self::Scalar =>  "scalar".to_string(),
+            Self::String => "string".to_string(),
             Self::Other(s) => s.clone(),
         }
     }
@@ -115,10 +116,10 @@ impl From<usize> for Attribute {
 impl Assembly for Attribute {
     fn assembly(&self) -> String {
         match self {
-            Self::Constant => "constant".to_owned(),
-            Self::Private => "private".to_owned(),
-            Self::Public => "public".to_owned(),
-            Self::Record | Self::ExternalRecord => "record".to_owned(),
+            Self::Constant => "constant".to_string(),
+            Self::Private => "private".to_string(),
+            Self::Public => "public".to_string(),
+            Self::Record | Self::ExternalRecord => "record".to_string(),
         }
     }
 }

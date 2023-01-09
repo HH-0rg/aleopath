@@ -1,10 +1,10 @@
-use std::fmt::Write;
-
+use core::fmt::Write;
 use crate::bytecode::ByteCode;
 use crate::util;
 use crate::components::{ Function, Mapping };
 use crate::components::function::FunctionType;
 use crate::output::Assembly;
+use alloc::{vec::Vec, string::String};
 
 #[derive(Default, Debug)]
 pub struct Disassembler {

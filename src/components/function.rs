@@ -1,10 +1,12 @@
-use std::fmt::Write;
+use core::fmt::Write;
 
 use crate::ByteCode;
 use crate::output::Assembly;
 use crate::util;
 use super::registers::{ IoRegister, IOType };
 use super::instructions::Instruction;
+use alloc::string::String;
+use alloc::vec::Vec;
 
 #[derive(Clone, Copy, Debug)]
 pub enum FunctionType {

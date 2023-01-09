@@ -1,4 +1,5 @@
 use crate::ByteCode;
+use alloc::{string::String, vec::Vec};
 
 pub fn read_identifier(bytes: &mut ByteCode) -> String {
     let n = bytes.read_u8();

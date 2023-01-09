@@ -1,4 +1,5 @@
-use std::mem::transmute;
+use core::intrinsics::transmute;
+use alloc::{vec::Vec};
 
 #[derive(Default, Debug)]
 pub struct ByteCode {

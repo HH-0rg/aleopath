@@ -3,6 +3,8 @@ use crate::util;
 use super::registers::Register;
 use super::types::Literal;
 use crate::output::Assembly;
+use alloc::string::{ String, ToString};
+use alloc::vec::Vec;
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Opcode {
@@ -294,7 +296,7 @@ impl Assembly for Operand {
             Self::Register(reg) => reg.assembly(),
             Self::ProgramId(loc) => loc.assembly(),
             Self::Literal(lit) => lit.assembly(),
-            Self::Caller => "caller".to_owned(),
+            Self::Caller => "caller".to_string(),
         }
     }
 }
@@ -307,7 +309,7 @@ impl Assembly for Option<Vec<Operand>> {
             .collect::<Vec<String>>()
             .join(" ")
        } else {
-        "".to_owned()
+        "".to_string()
        }
     }
 }
@@ -324,7 +326,7 @@ impl Assembly for Output {
         match self {
             Self::Single(reg) => reg.assembly(),
             Self::Multiple(regs) => regs.iter().map(|r| r.assembly()).collect::<Vec<String>>().join(" "),
-            Self::None => "".to_owned(),
+            Self::None => "".to_string(),
         }
     }
 }

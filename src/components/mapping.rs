@@ -2,6 +2,7 @@ use crate::output::Assembly;
 use crate::ByteCode;
 use super::{ Type, Attribute, types };
 use crate::util;
+use alloc::string::String;
 
 #[derive(Debug)]
 struct KeyValue {
