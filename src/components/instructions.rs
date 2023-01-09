@@ -479,9 +479,12 @@ impl Assembly for Instruction {
             Opcode::AssertNeq => format!("assert_eq({}, {})", self.operands[0].assembly(), self.operands[1].assembly()),
             Opcode::Call => format!("({}) = {}({})", self.output.leo(), self.operands[0].assembly(), self.operands[1..].iter().map(|o| o.leo()).collect::<Vec<String>>().join(", ")),
             Opcode::Cast => {
-                let (t, r) = match self.output {
-                    Output::Cast((t, r)) => (t, r),
-                    _ => unreachable!(),
+                let (t, r) = {
+                    if let Output::Cast((t, r)) = &self.output {
+                        (t, r)
+                    } else {
+                        unreachable!()
+                    }
                 };
                 format!("{} = {}{{ {} }}", r.assembly(), t.assembly(), self.operands.iter().map(|o| o.leo()).collect::<Vec<String>>().join(", "))
             },
