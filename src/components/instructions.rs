@@ -358,8 +358,7 @@ impl Instruction {
         let operands: Vec<Operand> = (0..num_inputs).map(|_| Operand::read(bytes)).collect();
         assert_eq!(bytes.read_u8(), 0);
         let output = Register{locator: bytes.read_u8() as usize, identifiers: vec![]};
-        let valtype = bytes.peek();
-        let value_type  = match valtype {
+        let value_type  = match bytes.peek() {
             0 => { _ = bytes.read_u8();  types::read_plaintext_type(bytes)},
             1 => types::read_plaintext_type(bytes),
             _ => unreachable!(),

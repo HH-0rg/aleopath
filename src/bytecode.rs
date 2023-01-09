@@ -3,7 +3,7 @@ use alloc::{vec::Vec};
 #[derive(Default, Debug)]
 pub struct ByteCode {
     bytes: Vec<u8>,
-    idx: usize,
+    pub idx: usize,
 }
 
 impl ByteCode {
@@ -13,14 +13,15 @@ impl ByteCode {
 
     // Peek one byte as unsigned int in little endian
     pub fn peek(&self) -> u8 {
-        self.bytes[self.idx]
+        self.bytes[0]
     }
 
     // Read one byte as unsigned int in little endian
     pub fn read_u8(&mut self) -> u8 {
-        let x = self.bytes[self.idx];
-        self.idx += 1;
-        x
+        // let x = self.bytes[self.idx];
+        // self.idx += 1;
+        // x
+        self.bytes.remove(0)
     }
 
     // Read two bytes as unsigned int in little endian

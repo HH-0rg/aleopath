@@ -38,7 +38,7 @@ impl Assembly for Register {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum IOType {
     Input,
     Output

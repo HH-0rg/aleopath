@@ -42,6 +42,7 @@ impl Function {
         let (num_instructions, instructions) = Instruction::read_instructions(bytes);
         let num_outputs = bytes.read_u16();
         let outputs: Vec<IoRegister> = (0..num_outputs).map(|_| IoRegister::read(bytes, function_type, IOType::Output)).collect();
+        let _finalize = bytes.read_u8();
         Self {
             name,
             function_type,

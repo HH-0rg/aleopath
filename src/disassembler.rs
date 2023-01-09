@@ -39,7 +39,8 @@ impl Disassembler {
 
     fn read_components(&mut self) {
         for _ in 0..self.num_components {
-            match self.bytes.read_u8() {
+            let x = self.bytes.read_u8();
+            match x {
                 0 => self.mappings.push(Mapping::read(&mut self.bytes)),
                 1 => self.structs.push(Struct::read(&mut self.bytes)),
                 2 => self.records.push(Record::read(&mut self.bytes)),
@@ -76,6 +77,8 @@ impl Assembly for Disassembler {
         let structs = self.structs.iter().map(|s| format!("{}", s.assembly())).collect::<Vec<String>>().join("\n\n");
         let records = self.records.iter().map(|s| format!("{}", s.assembly())).collect::<Vec<String>>().join("\n\n");
         o.write_fmt(format_args!("{}\n", mappings)).unwrap();
+        o.write_fmt(format_args!("{}\n", records)).unwrap();
+        o.write_fmt(format_args!("{}\n", structs)).unwrap();
         o.write_fmt(format_args!("{}\n", functions)).unwrap();
         o
     }

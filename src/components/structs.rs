@@ -41,7 +41,7 @@ impl Struct {
 
 impl Assembly for Struct {
     fn assembly(&self) -> String {
-        let entries = self.entries.iter().map(|i| format!("\t{}", i.assembly())).collect::<Vec<String>>().join("\n"); 
-        format!("{}\n{}", self.name, entries)
+        let entries = self.entries.iter().map(|i| format!("\t{};", i.assembly())).collect::<Vec<String>>().join("\n"); 
+        format!("struct {}:\n{}\n", self.name, entries)
     }
 }
