@@ -62,6 +62,6 @@ impl Assembly for Mapping {
     }
 
     fn leo(&self) -> String {
-        return String::new();
+        format!("mapping {}: {} => {};\n", self.name, self.key.value_type.assembly(), self.value.value_type.assembly())
     }
 }

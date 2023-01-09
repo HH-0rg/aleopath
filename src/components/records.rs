@@ -28,7 +28,7 @@ impl Assembly for Entry {
     }
 
     fn leo(&self) -> String {
-        return String::new();
+        format!("{}: {}.{},", self.name, self.value_type.assembly(), self.attribute_type.assembly())
     }
 }
 
@@ -75,6 +75,7 @@ impl Assembly for Record {
     }
 
     fn leo(&self) -> String {
-        return String::new();
+        let entries = self.entries.iter().map(|i| format!("\t{}", i.leo())).collect::<Vec<String>>().join("\n");
+        format!("record {} {{\n\towner: address.{},\n\tgates: u64.{},\n{}\n}}\n", self.name, self.owner_attribute.leo(), self.gates_attribute.leo(), entries)
     }
 }

@@ -65,6 +65,6 @@ mod tests {
         println!("length: {}", file_contents.len());
         let mut a = Disassembler::from_bytes(file_contents);
         a.disassemble();
-        println!("{}", a.assembly());
+        println!("{}", a.leo());
     }
 }

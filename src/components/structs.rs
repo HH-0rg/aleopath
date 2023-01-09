@@ -51,6 +51,6 @@ impl Assembly for Struct {
 
     fn leo(&self) -> String {
         let entries = self.entries.iter().map(|i| format!("\t{}", i.leo())).collect::<Vec<String>>().join("\n"); 
-        format!("struct {} {{\n{}}}\n", self.name, entries)
+        format!("struct {} {{\n{}\n}}\n", self.name, entries)
      }
 }
