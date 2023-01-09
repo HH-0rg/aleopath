@@ -1,7 +1,7 @@
 use core::fmt::Write;
 use crate::bytecode::ByteCode;
 use crate::util;
-use crate::components::{ Function, Mapping };
+use crate::components::{ Function, Mapping, Struct };
 use crate::components::function::FunctionType;
 use crate::output::Assembly;
 use alloc::{vec::Vec, string::String};
@@ -17,6 +17,7 @@ pub struct Disassembler {
     num_components: u16,
     functions: Vec<Function>,
     mappings: Vec<Mapping>,
+    structs: Vec<Struct>,
 }
 
 impl Disassembler {
@@ -39,6 +40,7 @@ impl Disassembler {
         for _ in 0..self.num_components {
             match self.bytes.read_u8() {
                 0 => self.mappings.push(Mapping::read(&mut self.bytes)),
+                1 => self.structs.push(Struct::read(&mut self.bytes)),
                 3 => self.functions.push(Function::read(&mut self.bytes, FunctionType::Closure)),
                 4 => self.functions.push(Function::read(&mut self.bytes, FunctionType::Function)),
                 _ => todo!()
@@ -69,6 +71,7 @@ impl Assembly for Disassembler {
         o.write_fmt(format_args!("program {}.{}\n\n", self.program_name, self.network)).unwrap();
         let mappings = self.mappings.iter().map(|m| format!("{}", m.assembly())).collect::<Vec<String>>().join("\n\n");
         let functions = self.functions.iter().map(|f| format!("{}", f.assembly())).collect::<Vec<String>>().join("\n\n");
+        let structs = self.structs.iter().map(|s| format!("{}", s.assembly())).collect::<Vec<String>>().join("\n\n");
         o.write_fmt(format_args!("{}\n", mappings)).unwrap();
         o.write_fmt(format_args!("{}\n", functions)).unwrap();
         o

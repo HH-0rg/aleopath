@@ -1,5 +1,7 @@
+use crate::output::Assembly;
 use crate::{ByteCode, util};
 use super::types::{Type, self};
+use alloc::fmt::format;
 use alloc::string::String;
 use alloc::vec::Vec;
 
@@ -9,6 +11,13 @@ struct Entry {
     value_type: Type
 }
 
+impl Assembly for Entry {
+    fn assembly(&self) -> String {
+        format!("{} as {}", self.name, self.value_type.assembly())
+    }
+}
+
+#[derive(Debug)]
 pub struct Struct {
     name: String,
     entries: Vec<Entry>,
@@ -28,5 +37,12 @@ impl Struct {
             name,
             entries
         }
+    }
+}
+
+impl Assembly for Struct {
+    fn assembly(&self) -> String {
+        let entries = self.entries.iter().map(|i| format!("\t{}", i.assembly())).collect::<Vec<String>>().join("\n"); 
+        format!("{}\n{}", self.name, entries)
     }
 }

@@ -8,3 +8,4 @@ pub mod structs;
 use types::{Type, Attribute};
 pub use mapping::Mapping;
 pub use function::Function;
+pub use structs::Struct;
