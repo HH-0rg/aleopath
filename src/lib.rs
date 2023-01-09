@@ -7,15 +7,24 @@ mod components;
 mod output;
 #[macro_use]
 extern crate alloc;
-
+use alloc::{vec::Vec, string::String};
 pub use disassembler::Disassembler;
 pub use bytecode::ByteCode;
+use output::Assembly;
+use wasm_bindgen::prelude::*;
 
 extern crate wee_alloc;
 
 // Use `wee_alloc` as the global allocator.
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
+#[wasm_bindgen]
+pub fn disassemble(bytes: Vec<u8>) -> String {
+    let mut a = Disassembler::from_bytes(bytes);
+    a.disassemble();
+    a.assembly()
+}
 
 // #[cfg(test)]
 // mod tests {
