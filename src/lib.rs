@@ -23,7 +23,7 @@ extern crate wee_alloc;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-pub fn disassemble(bytes: String) -> String {
+pub fn disassemble(bytes: &str) -> &str {
     let v: Vec<u8> = (0..bytes.len())
         .step_by(2)
         .map(|i| u8::from_str_radix(&bytes[i..i + 2], 16))
