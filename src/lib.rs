@@ -14,7 +14,6 @@ pub use disassembler::Disassembler;
 pub use bytecode::ByteCode;
 use output::Assembly;
 use wasm_bindgen::prelude::*;
-use js_sys::Array;
 
 extern crate wee_alloc;
 
@@ -23,10 +22,10 @@ extern crate wee_alloc;
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
-pub fn disassemble(bytes: &str) -> &str {
+pub fn disassemble(bytes: &str) -> String {
     let v: Vec<u8> = (0..bytes.len())
         .step_by(2)
-        .map(|i| u8::from_str_radix(&bytes[i..i + 2], 16))
+        .map(|i| u8::from_str_radix(&bytes[i..i + 2], 16).unwrap())
         .collect();
     let mut a = Disassembler::from_bytes(v);
     a.disassemble();
