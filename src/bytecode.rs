@@ -18,13 +18,13 @@ impl ByteCode {
 
     // Read two bytes as unsigned int in little endian
     pub fn read_u16(&mut self) -> u16 {
-        let a: Vec<u8> = self.bytes.drain(0..2).collect();
+        let a: Vec<u8> = (0..2).map(|_| self.bytes.remove(0)).collect();
         unsafe { transmute::<[u8; 2], u16>([a[0], a[1]]) }
     }
 
     // Read four bytes as unsigned int in little endian
     pub fn read_u32(&mut self) -> u32 {
-        let a: Vec<u8> = self.bytes.drain(0..4).collect();
+        let a: Vec<u8> = (0..4).map(|_| self.bytes.remove(0)).collect();;
         unsafe { transmute::<[u8; 4], u32>([a[0], a[1], a[2], a[3]]) }
     }
 
@@ -65,6 +65,6 @@ impl ByteCode {
 
     // Read n bytes
     pub fn read_n(&mut self, n: usize) -> Vec<u8> {
-        self.bytes.drain(0..n).collect()
+        (0..n).map(|_| self.bytes.remove(0)).collect()
     }
 }
