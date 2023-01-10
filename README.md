@@ -1,6 +1,6 @@
-# aleopathy
+# Aleopathy
 
-aleopathy is a WASM-compatible Aleo Virtual Machine (AVM) bytecode to Leo decompiler, written in Rust.
+Aleopathy is a WASM-compatible Aleo Virtual Machine (AVM) bytecode to Leo decompiler, written in Rust.
 
 ## Example
 
