@@ -91,7 +91,13 @@ impl Assembly for Function {
         o.write_str(") {\n").unwrap();
         let instructions = self.instructions.iter().map(|i| format!("\t{}", i.leo())).collect::<Vec<String>>().join("\n"); 
         o.write_fmt(format_args!("{instructions}\n}}\n")).unwrap();
-        o
 
+        match self.outputs.len() {
+            0 => {},
+            1 => { o.write_fmt(format_args!("return {}", self.outputs[0].leo())).unwrap(); },
+            _ => { o.write_fmt(format_args!("return ({})", self.outputs.iter().map(|o| o.leo()).collect::<Vec<String>>().join(", "))).unwrap(); }
+        };
+
+        o
     }
 }

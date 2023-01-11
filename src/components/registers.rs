@@ -90,7 +90,7 @@ impl Assembly for IoRegister {
     fn leo(&self) -> String {
         match self.io_type {
             IOType::Input => format!("{} {}: {}", self.attribute_type.leo(), self.register.leo(), self.value_type.leo()),
-            IOType::Output => "output".to_string(),
+            IOType::Output => self.register.leo(),
         }
     }
 }
